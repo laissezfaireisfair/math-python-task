@@ -1,4 +1,6 @@
 from BernoulliExperiment import BernoulliExperiment
+from PoissonModel import PoissonModel
+from ExponentialModel import ExponentialModel
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,8 +19,24 @@ def run_bernoulli_experiments(numerator: int, denominator: int, series_length: i
 
     successes, distances = experiment.run_series(series_length)
 
-    show_and_log_histogram(successes, name='Bernoulli experiment successes')
+    show_and_log_histogram(successes, name='Bernoulli experiment successes count')
     show_and_log_histogram(distances, name='Bernoulli experiment success distances')
+
+
+def run_poisson_model(parameter: float, series_length: int) -> None:
+    model = PoissonModel(parameter)
+
+    distances = model.run_series_and_get_distances(series_length)
+
+    show_and_log_histogram(distances, name='Poisson model success distances')
+
+
+def run_exponential_model(parameter: float, series_length: int) -> None:
+    model = ExponentialModel(parameter)
+
+    successes_count = model.run_series_and_get_successes_count(series_length)
+
+    show_and_log_histogram(successes_count, name='Exponential model successes count')
 
 
 def main():
@@ -27,6 +45,8 @@ def main():
     series_length = 1000
 
     run_bernoulli_experiments(numerator, denominator, series_length)
+    run_poisson_model(numerator, series_length)
+    run_exponential_model(numerator, series_length)
 
 
 main()

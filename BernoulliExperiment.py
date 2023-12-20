@@ -20,7 +20,7 @@ class BernoulliExperiment:
         results = [self.run_once() for _ in range(sub_segments_count)]
         return np.array(results, dtype=np.bool_)
 
-    def _count_distances_between_successes(self, segment_results: np.ndarray) -> [int]:
+    def _count_distances_between_successes(self, segment_results: np.ndarray) -> [float]:
         class Status(enum.Enum):
             looking_for_first_success = 0
             looking_for_fail = 1
@@ -55,16 +55,17 @@ class BernoulliExperiment:
         return distances
 
     def run_series(self, length: int) -> (np.ndarray, np.ndarray):
-        successes_by_iteration = []
-        distances_between_successes = []
-
-        for _ in range(length):
+        def get_successes_count_and_distances() -> ([int], [float]):
             segment_results = self.run_segment()
 
-            successes = np.count_nonzero(segment_results)
-            successes_by_iteration.append(successes)
+            step_successes_count = np.count_nonzero(segment_results)
 
-            distances = self._count_distances_between_successes(segment_results)
-            distances_between_successes += distances
+            step_distances = self._count_distances_between_successes(segment_results)
+            return step_successes_count, step_distances
 
-        return np.array(successes_by_iteration), np.array(distances_between_successes)
+        successes_and_distances = (get_successes_count_and_distances() for _ in range(length))
+
+        successes_count, distances = zip(*successes_and_distances)
+        distances_flatten = [distance for xs in distances for distance in xs]
+
+        return np.array(successes_count), np.array(distances_flatten)
